@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ePon - Dashboard</title>
+    <style>
+        body {
+            background: url('/images/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 30px 15px;
+            box-sizing: border-box;
+        }
+        .container { max-width: 800px; width: 100%; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(128, 0, 128, 0.1); }
+        .header h1 { color: rgb(128, 0, 128); margin: 0; font-size: 24px; }
+        .logout-btn { background-color: rgb(128, 0, 128); color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: bold; }
+
+        .balance-card { background: linear-gradient(135deg, rgb(128, 0, 128), rgb(90, 0, 90)); color: white; padding: 30px; border-radius: 12px; margin-top: 20px; text-align: center; box-shadow: 0 6px 15px rgba(128, 0, 128, 0.2); }
+        .balance-card h3 { margin: 0; font-weight: normal; font-size: 16px; opacity: 0.9; }
+        .balance-card h2 { margin: 10px 0 0 0; font-size: 38px; }
+
+        .actions { display: flex; gap: 15px; margin-top: 20px; }
+        .actions a { flex: 1; text-align: center; background-color: white; color: rgb(128, 0, 128); border: 2px solid rgb(128, 0, 128); padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.2s; }
+        .actions a:hover { background-color: rgb(128, 0, 128); color: white; }
+
+        .transactions { background: white; padding: 20px; border-radius: 12px; margin-top: 20px; box-shadow: 0 4px 10px rgba(128, 0, 128, 0.1); }
+        .transactions h3 { color: rgb(128, 0, 128); margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+        th { color: rgb(128, 0, 128); font-weight: 600; }
+
+        /* New Feature Cards Layout */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .card-widget {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(128, 0, 128, 0.1);
+        }
+        .card-widget h3 {
+            color: rgb(128, 0, 128);
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Hello, <span th:text="${userName}">User</span></h1>
+        <a class="logout-btn" th:href="@{/logout}">Log Out</a>
+    </div>
+
+    <div class="balance-card">
+        <h3>CURRENT BALANCE</h3>
+        <h2>₱ <span th:text="${#numbers.formatDecimal(balance, 1, 2)}">0.00</span></h2>
+    </div>
+
+    <div class="actions">
+        <a th:href="@{/cash-in}">Cash-In</a>
+        <a th:href="@{/transfer}">Transfer Money</a>
+    </div>
+
+    <div class="transactions">
+        <h3>Transaction Logs</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Details</th>
+                <th>Date and Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="tx : ${transactions}">
+                <td th:text="${tx.transactionType}" style="font-weight: bold;">CASH IN</td>
+                <td th:text="${'₱ ' + #numbers.formatDecimal(tx.amount, 1, 2)}">₱ 0.00</td>
+                <td th:text="${tx.details}">Details</td>
+                <td th:text="${#temporals.format(tx.dateTime, 'yyyy-MM-dd HH:mm')}">2026-11-16 10:00</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(transactions)}">
+                <td colspan="4" style="text-align: center; color: #777;">No transactions recorded yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Added Features Section -->
+    <div class="features-grid">
+        <!-- 1. Currency Exchange Converter -->
+        <div class="card-widget">
+            <h3>💱 Currency Converter</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                <input type="number" id="phpAmount" placeholder="Amount in ₱" style="width: 100%; padding: 8px; border: 1px solid rgb(90, 0, 90); border-radius: 8px; outline: none;">
+                <select id="targetCurrency" style="padding: 8px; border: 1px solid rgb(90, 0, 90); border-radius: 8px; background: #FEE3FF; color: rgb(128, 0, 128); font-weight: bold;">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="JPY">JPY</option>
+                    <option value="SGD">SGD</option>
+                </select>
+            </div>
+            <button type="button" onclick="convertCurrency()" style="background: rgb(128, 0, 128); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; --toc-hover-color:rgb(90, 0, 90); width: 100%; font-weight: bold;">Convert</button>
+            <div id="conversionResult" style="margin-top: 10px; font-weight: bold; color: rgb(90, 0, 90); font-size: 13px; text-align: center;"></div>
+        </div>
+
+        <!-- 2. Banking Trends Card -->
+        <div class="card-widget">
+            <h3>📈 Banking Trends</h3>
+            <ul style="padding-left: 16px; margin: 0; color: rgb(90, 0, 90); font-size: 12.5px; line-height: 1.5;">
+                <li><strong>AI Copilots:</strong> Automated spending insights.</li>
+                <li><strong>Instant Transfers:</strong> Real-time P2P cash-ins.</li>
+                <li><strong>Zero-Trust Security:</strong> Enhanced account safety.</li>
+                <li><strong>Agentic Payments:</strong> Autonomous bill pay and liquidity routing.</li>
+                <li><strong>Embedded Finance:</strong> Banking tools built into everyday apps.</li>
+                <li><strong>Green Fintech:</strong> Automated carbon footprint tracking per purchase.</li>
+                <li><strong>Tokenized Assets:</strong> Instant, blockchain-backed cross-border settlements.</li>
+            </ul>
+        </div>
+
+        <!-- 3. About the App Card -->
+        <div class="card-widget" style="background: linear-gradient(135deg, #FEE3FF, #ffffff); border-left: 4px solid rgb(128, 0, 128);">
+            <h3>ℹ️ About ePon</h3>
+            <p style="color: rgb(90, 0, 90); font-size: 12.5px; line-height: 1.5; margin: 0 0 8px 0;">
+                <em>ePon was built from the ground up as a modern and secure fintech web application, leverages the enterprise-grade power and object-oriented robustness of the Java programming language. Powered by Spring Boot for scalable backend architecture and streamlined dependency management with Maven.
+                    Our platform ensures fast, reliable, and secure financial transactions.
+                    Experience the next generation of seamless digital banking backed by high-performance Java engineering. </em>
+                <p>  <p style="color: rgb(90, 0, 90); font-size: 12.5px; line-height: 1.5; margin: 0 0 8px 0;">
+            <strong>–"Easy saving, easy banking."</strong></p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function convertCurrency() {
+        const amount = parseFloat(document.getElementById('phpAmount').value);
+        const currency = document.getElementById('targetCurrency').value;
+        if (isNaN(amount) || amount <= 0) {
+            document.getElementById('conversionResult').innerText = "Enter a valid ₱ amount";
+            return;
+        }
+        const rates = { USD: 0.017, EUR: 0.016, JPY: 2.65, SGD: 0.023 };
+        const result = (amount * (rates[currency] || 1)).toFixed(2);
+        document.getElementById('conversionResult').innerText = `₱${amount.toFixed(2)} = ${result}${currency}`;
+    }
+</script>
+</body>
+</html>

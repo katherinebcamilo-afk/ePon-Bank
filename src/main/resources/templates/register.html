@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ePon - Register</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background:
+            url('/images/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            width: 420px;
+            background: white;
+            padding: 40px 30px;
+            border-radius: 14px;
+            box-shadow: 0 8px 30px rgba(128, 0, 128, 0.25);
+            border-top: 6px solid rgb(128, 0, 128);
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 20px;
+            color: black;
+            box-sizing: border-box;
+        }
+
+        input::placeholder {
+            font-size: 14px;
+            color: lightgray;
+        }
+        h2 { color: rgb(128, 0, 128); text-align: center; margin-top: 0; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: rgb(100, 0, 100); font-weight: 600; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { width: 100%; background-color: rgb(128, 0, 128); color: white; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background 0.2s; font-size: 15px; }
+        button:hover { background-color: rgb(100, 0, 100); }
+        .alert-error { background-color: #ffe6e6; color: #cc0000; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; text-align: center; }
+        .links { text-align: center; margin-top: 15px; font-size: 14px; }
+        .links a { color: rgb(128, 0, 128); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Create ePon Account</h2>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <form th:action="@{/register}" method="post">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="fullName" placeholder="Your Name" required>
+        </div>
+        <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" name="mobileNumber" placeholder="Your Mobile Number" required>
+        </div>
+        <div class="form-group">
+            <label>PIN</label>
+            <input type="password" name="pin" placeholder="Create PIN" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <div class="links">
+        <p>Already have an account? <a th:href="@{/login}">Log In Here</a>.</p>
+    </div>
+</div>
+</body>
+</html>
